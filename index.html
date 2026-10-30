@@ -1,43 +1,117 @@
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PRISMA: compara precios y encuentra tecnología al mejor precio.">
 
-    <meta
-        name="description"
-        content="PRISMA es una plataforma para comparar precios de productos tecnológicos."
-    >
+    <title>PRISMA | Compara antes de comprar</title>
 
-    <title>PRISMA | Comparador de precios</title>
-
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/main.js" defer></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/main.js" defer></script>
 </head>
 
 <body>
 
-    <header>
-        <h1>PRISMA</h1>
-        <p>Comparador inteligente de precios.</p>
+    <header class="header">
+        <nav class="navbar">
+            <a href="#" class="logo">PRISMA.</a>
+
+            <ul class="nav-links">
+                <li><a href="#categorias">Categorías</a></li>
+                <li><a href="#productos">Productos</a></li>
+                <li><a href="#nosotros">Nosotros</a></li>
+            </ul>
+
+            <a href="#productos" class="nav-button">Explorar</a>
+        </nav>
     </header>
 
     <main>
-        <section>
-            <h2>Bienvenido a PRISMA</h2>
 
-            <p>
-                Encuentra, compara y descubre mejores precios
-                en productos tecnológicos.
-            </p>
+        <section class="hero">
+            <div class="hero-content">
+
+                <span class="eyebrow">
+                    TECNOLOGÍA · COMPARACIÓN · DECISIÓN
+                </span>
+
+                <h1>
+                    Compra mejor.
+                    <span>Compara antes.</span>
+                </h1>
+
+                <p>
+                    Encuentra tecnología, compara precios y descubre
+                    mejores oportunidades antes de comprar.
+                </p>
+
+                <a href="#productos" class="hero-button">
+                    Explorar productos →
+                </a>
+
+            </div>
+
+            <div class="hero-image">
+                <span>01 / PRISMA COLLECTION</span>
+
+                <div class="image-placeholder">
+                    <p>
+                        TECHNOLOGY<br>
+                        FOR EVERYONE.
+                    </p>
+                </div>
+            </div>
         </section>
+
+        <section class="categories" id="categorias">
+
+            <div class="section-heading">
+                <span>01 — EXPLORAR</span>
+                <h2>Encuentra tu categoría.</h2>
+            </div>
+
+            <div class="category-list">
+
+                <article class="category-card">
+                    <h3>Smartphones</h3>
+                    <p>Descubre nuevos dispositivos.</p>
+                </article>
+
+                <article class="category-card">
+                    <h3>Laptops</h3>
+                    <p>Potencia para tus proyectos.</p>
+                </article>
+
+                <article class="category-card">
+                    <h3>Audio</h3>
+                    <p>Escucha cada detalle.</p>
+                </article>
+
+                <article class="category-card">
+                    <h3>Gaming</h3>
+                    <p>Explora nuevas experiencias.</p>
+                </article>
+
+            </div>
+
+        </section>
+
+        <section class="products" id="productos">
+
+            <div class="section-heading">
+                <span>02 — SELECCIÓN</span>
+                <h2>Productos destacados.</h2>
+            </div>
+
+        </section>
+
     </main>
 
-    <footer>
-        <p>© 2026 PRISMA. Todos los derechos reservados.</p>
+    <footer class="footer" id="nosotros">
+        <p>© 2026 PRISMA. Comparar es comprar mejor.</p>
     </footer>
 
 </body>
-
 </html>
