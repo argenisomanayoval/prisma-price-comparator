@@ -4,113 +4,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PRISMA: compara precios y encuentra tecnología al mejor precio.">
-
-    <title>PRISMA | Compara antes de comprar</title>
-
+    <meta name="description" content="PRISMA: compara productos tecnológicos y encuentra mejores oportunidades.">
+    <title>PRISMA — Compara antes de comprar</title>
     <link rel="stylesheet" href="./css/style.css">
     <script src="./js/main.js" defer></script>
 </head>
-
 <body>
 
+    <!-- HEADER -->
     <header class="header">
-        <nav class="navbar">
-            <a href="#" class="logo">PRISMA.</a>
+        <nav class="navbar container">
+            <a href="#" class="logo">PRISMA<span>.</span></a>
 
-            <ul class="nav-links">
-                <li><a href="#categorias">Categorías</a></li>
-                <li><a href="#productos">Productos</a></li>
-                <li><a href="#nosotros">Nosotros</a></li>
-            </ul>
+            <div class="nav-links">
+                <a href="#categorias">Categorías</a>
+                <a href="#productos">Productos</a>
+                <a href="#nosotros">Nosotros</a>
+            </div>
 
-            <a href="#productos" class="nav-button">Explorar</a>
+            <a href="#productos" class="nav-cta">Explorar productos ↗</a>
         </nav>
     </header>
 
     <main>
 
-        <section class="hero">
+        <!-- HERO -->
+        <section class="hero container">
             <div class="hero-content">
+                <span class="eyebrow">TECNOLOGÍA · COMPARACIÓN · DECISIONES</span>
 
-                <span class="eyebrow">
-                    TECNOLOGÍA · COMPARACIÓN · DECISIÓN
-                </span>
-
-                <h1>
-                    Compra mejor.
-                    <span>Compara antes.</span>
-                </h1>
+                <h1>Compra mejor.<br>Compara antes<span>.</span></h1>
 
                 <p>
-                    Encuentra tecnología, compara precios y descubre
-                    mejores oportunidades antes de comprar.
+                    La tecnología que buscas, las opciones que necesitas.
+                    Compara productos y encuentra la alternativa ideal para ti.
                 </p>
 
-                <a href="#productos" class="hero-button">
-                    Explorar productos →
+                <a href="#productos" class="primary-button">
+                    Explorar catálogo <span>↗</span>
                 </a>
 
-            </div>
-
-            <div class="hero-image">
-                <span>01 / PRISMA COLLECTION</span>
-
-                <div class="image-placeholder">
-                    <p>
-                        TECHNOLOGY<br>
-                        FOR EVERYONE.
-                    </p>
+                <div class="hero-note">
+                    <span class="note-line"></span>
+                    <span>DECISIONES INTELIGENTES COMIENZAN AQUÍ</span>
                 </div>
             </div>
+
+            <div class="hero-visual">
+                <div class="visual-label">01 / PRISMA SELECTION</div>
+
+                <div class="visual-circle circle-one"></div>
+                <div class="visual-circle circle-two"></div>
+
+                <div class="visual-center">
+                    <span>P.</span>
+                </div>
+
+                <div class="visual-caption">
+                    <span>TECHNOLOGY</span>
+                    <span>REDEFINED.</span>
+                </div>
+
+                <span class="visual-number">2026</span>
+            </div>
         </section>
 
-        <section class="categories" id="categorias">
-
+        <!-- CATEGORIES -->
+        <section class="categories container" id="categorias">
             <div class="section-heading">
-                <span>01 — EXPLORAR</span>
-                <h2>Encuentra tu categoría.</h2>
+                <span class="section-number">01 — EXPLORA</span>
+                <h2>Encuentra tu categoría<span>.</span></h2>
+                <p>Todo comienza con lo que estás buscando.</p>
             </div>
 
-            <div class="category-list">
-
-                <article class="category-card">
+            <div class="category-grid">
+                <a href="#productos" class="category-card">
+                    <span class="category-index">01</span>
+                    <span class="category-icon">◈</span>
                     <h3>Smartphones</h3>
-                    <p>Descubre nuevos dispositivos.</p>
-                </article>
+                    <span class="category-arrow">↗</span>
+                </a>
 
-                <article class="category-card">
+                <a href="#productos" class="category-card">
+                    <span class="category-index">02</span>
+                    <span class="category-icon">▱</span>
                     <h3>Laptops</h3>
-                    <p>Potencia para tus proyectos.</p>
-                </article>
+                    <span class="category-arrow">↗</span>
+                </a>
 
-                <article class="category-card">
+                <a href="#productos" class="category-card">
+                    <span class="category-index">03</span>
+                    <span class="category-icon">◎</span>
                     <h3>Audio</h3>
-                    <p>Escucha cada detalle.</p>
-                </article>
+                    <span class="category-arrow">↗</span>
+                </a>
 
-                <article class="category-card">
+                <a href="#productos" class="category-card">
+                    <span class="category-index">04</span>
+                    <span class="category-icon">△</span>
                     <h3>Gaming</h3>
-                    <p>Explora nuevas experiencias.</p>
-                </article>
-
+                    <span class="category-arrow">↗</span>
+                </a>
             </div>
-
         </section>
 
-        <section class="products" id="productos">
-
+        <!-- PRODUCTS -->
+        <section class="products container" id="productos">
             <div class="section-heading">
-                <span>02 — SELECCIÓN</span>
-                <h2>Productos destacados.</h2>
+                <span class="section-number">02 — SELECCIÓN</span>
+                <h2>Productos destacados<span>.</span></h2>
+                <p>Descubre tecnología y encuentra mejores oportunidades.</p>
             </div>
 
+            <div class="catalog-controls">
+
+                <div class="search-container">
+                    <span class="search-icon">⌕</span>
+                    <input
+                        type="search"
+                        id="search-input"
+                        placeholder="Buscar productos, marcas o categorías..."
+                        aria-label="Buscar productos"
+                    >
+                </div>
+
+                <div class="category-filters" aria-label="Filtrar por categoría">
+                    <button class="filter-btn active" data-category="all" type="button">Todos</button>
+                    <button class="filter-btn" data-category="Smartphones" type="button">Smartphones</button>
+                    <button class="filter-btn" data-category="Laptops" type="button">Laptops</button>
+                    <button class="filter-btn" data-category="Audio" type="button">Audio</button>
+                    <button class="filter-btn" data-category="Gaming" type="button">Gaming</button>
+                </div>
+
+                <div class="catalog-toolbar">
+                    <p id="results-count" aria-live="polite">4 productos</p>
+
+                    <div class="sort-container">
+                        <label for="sort-select">Ordenar por:</label>
+
+                        <select id="sort-select">
+                            <option value="default">Destacados</option>
+                            <option value="price-asc">Menor precio</option>
+                            <option value="price-desc">Mayor precio</option>
+                            <option value="name-asc">Nombre A-Z</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-grid" id="product-grid">
+                <!-- Los productos se generan con JavaScript -->
+            </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="about-section" id="nosotros">
+            <div class="about-content container">
+                <span class="section-number">03 — NUESTRA IDEA</span>
+                <h2>La mejor compra no siempre es la más cara<span>.</span></h2>
+                <p>
+                    PRISMA nace para ayudarte a descubrir, comparar y elegir
+                    tecnología con mayor claridad. Menos dudas, mejores decisiones.
+                </p>
+            </div>
         </section>
 
     </main>
 
-    <footer class="footer" id="nosotros">
-        <p>© 2026 PRISMA. Comparar es comprar mejor.</p>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <a href="#" class="logo">PRISMA<span>.</span></a>
+            <p>Explora. Compara. Decide.</p>
+            <span class="copyright">© 2026 PRISMA. Proyecto de portafolio.</span>
+        </div>
     </footer>
 
 </body>
