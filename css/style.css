@@ -3,8 +3,6 @@
    PRISMA — MAIN STYLESHEET
    ========================================= */
 
-/* 1. RESET AND VARIABLES */
-
 :root {
     --background: #f7f6f2;
     --surface: #ffffff;
@@ -53,7 +51,7 @@ button {
     margin: 0 auto;
 }
 
-/* 2. HEADER */
+/* HEADER */
 
 .header {
     width: 100%;
@@ -107,7 +105,7 @@ button {
     color: white;
 }
 
-/* 3. HERO */
+/* HERO */
 
 .hero {
     min-height: 570px;
@@ -185,7 +183,7 @@ button {
     background: var(--accent);
 }
 
-/* 4. HERO VISUAL */
+/* HERO VISUAL */
 
 .hero-visual {
     position: relative;
@@ -257,7 +255,7 @@ button {
     font-size: 10px;
 }
 
-/* 5. SECTION HEADINGS */
+/* SECTION HEADINGS */
 
 .section-heading {
     margin-bottom: 38px;
@@ -275,7 +273,7 @@ button {
     font-size: 14px;
 }
 
-/* 6. CATEGORIES */
+/* CATEGORIES */
 
 .categories {
     padding-top: 55px;
@@ -328,7 +326,7 @@ button {
     color: var(--muted);
 }
 
-/* 7. PRODUCTS SECTION */
+/* PRODUCTS AND CATALOG */
 
 .products {
     padding-top: 80px;
@@ -340,7 +338,7 @@ button {
     margin-bottom: 35px;
 }
 
-/* Search */
+/* SEARCH */
 
 .search-container {
     position: relative;
@@ -377,7 +375,7 @@ button {
     color: #aaa79f;
 }
 
-/* Category filters */
+/* CATEGORY FILTERS */
 
 .category-filters {
     display: flex;
@@ -402,7 +400,19 @@ button {
     color: white;
 }
 
-/* Sorting and results count */
+.favorites-filter {
+    border-color: #d9c7bd;
+    color: #8b5d53;
+}
+
+.favorites-filter:hover,
+.favorites-filter.active {
+    border-color: #8b5d53;
+    background: #8b5d53;
+    color: white;
+}
+
+/* SORTING AND RESULTS */
 
 .catalog-toolbar {
     display: flex;
@@ -440,7 +450,7 @@ button {
     font-size: 12px;
 }
 
-/* Product grid */
+/* PRODUCT GRID */
 
 .product-grid {
     display: grid;
@@ -462,6 +472,7 @@ button {
 }
 
 .product-image {
+    position: relative;
     height: 205px;
     padding: 15px;
     display: flex;
@@ -475,6 +486,45 @@ button {
     height: 100%;
     object-fit: contain;
 }
+
+/* FAVORITE BUTTON */
+
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    color: #77766f;
+    font-size: 19px;
+    transition: all 0.2s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.08);
+    color: #a34f4f;
+}
+
+.favorite-btn.is-favorite {
+    border-color: #a34f4f;
+    background: #a34f4f;
+    color: white;
+}
+
+.favorite-btn:focus-visible,
+.filter-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* PRODUCT INFORMATION */
 
 .product-info {
     padding: 19px;
@@ -514,7 +564,7 @@ button {
     font-size: 11px;
 }
 
-/* Empty search result */
+/* EMPTY STATE */
 
 .empty-state {
     grid-column: 1 / -1;
@@ -533,7 +583,7 @@ button {
     font-size: 13px;
 }
 
-/* 8. ABOUT SECTION */
+/* ABOUT SECTION */
 
 .about-section {
     padding: 95px 0;
@@ -555,7 +605,7 @@ button {
     line-height: 1.9;
 }
 
-/* 9. FOOTER */
+/* FOOTER */
 
 .footer {
     padding: 35px 0;
@@ -580,7 +630,7 @@ button {
     font-size: 11px;
 }
 
-/* 10. RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN */
 
 @media (max-width: 950px) {
     .hero {

@@ -53,17 +53,61 @@ const products = [
 
 const productGrid = document.getElementById("product-grid");
 const searchInput = document.getElementById("search-input");
-const filterButtons = document.querySelectorAll(".filter-btn");
+const filterButtons = document.querySelectorAll(".filter-btn[data-category]");
 const sortSelect = document.getElementById("sort-select");
 const resultsCount = document.getElementById("results-count");
+const favoritesToggle = document.getElementById("favorites-toggle");
+const favoritesCount = document.getElementById("favorites-count");
 
 
 /* 3. APPLICATION STATE */
 
 let selectedCategory = "all";
+let showFavoritesOnly = false;
 
 
-/* 4. FORMAT PRICES */
+/* 4. LOAD FAVORITES FROM LOCAL STORAGE */
+
+function loadFavorites() {
+    try {
+        const savedFavorites = JSON.parse(
+            localStorage.getItem("prisma-favorites")
+        );
+
+        if (!Array.isArray(savedFavorites)) {
+            return [];
+        }
+
+        return savedFavorites.filter(function(id) {
+            return products.some(function(product) {
+                return product.id === id;
+            });
+        });
+
+    } catch (error) {
+        console.error("Error al recuperar los favoritos:", error);
+        return [];
+    }
+}
+
+let favoriteProducts = loadFavorites();
+
+
+/* 5. SAVE FAVORITES IN LOCAL STORAGE */
+
+function saveFavorites() {
+    try {
+        localStorage.setItem(
+            "prisma-favorites",
+            JSON.stringify(favoriteProducts)
+        );
+    } catch (error) {
+        console.error("No fue posible guardar los favoritos:", error);
+    }
+}
+
+
+/* 6. FORMAT PRICES */
 
 function formatPrice(price) {
     return new Intl.NumberFormat("es-MX", {
@@ -74,7 +118,24 @@ function formatPrice(price) {
 }
 
 
-/* 5. FILTER, SEARCH AND SORT PRODUCTS */
+/* 7. UPDATE FAVORITES COUNTER */
+
+function updateFavoritesCount() {
+    favoritesCount.textContent = favoriteProducts.length;
+
+    favoritesToggle.classList.toggle(
+        "active",
+        showFavoritesOnly
+    );
+
+    favoritesToggle.setAttribute(
+        "aria-pressed",
+        String(showFavoritesOnly)
+    );
+}
+
+
+/* 8. FILTER, SEARCH AND SORT PRODUCTS */
 
 function getFilteredProducts() {
     const searchTerm = searchInput.value.trim().toLowerCase();
@@ -90,7 +151,11 @@ function getFilteredProducts() {
             selectedCategory === "all" ||
             product.category === selectedCategory;
 
-        return matchesSearch && matchesCategory;
+        const matchesFavorites =
+            !showFavoritesOnly ||
+            favoriteProducts.includes(product.id);
+
+        return matchesSearch && matchesCategory && matchesFavorites;
     });
 
     const sortValue = sortSelect.value;
@@ -117,10 +182,12 @@ function getFilteredProducts() {
 }
 
 
-/* 6. DISPLAY PRODUCTS */
+/* 9. DISPLAY PRODUCTS */
 
 function displayProducts() {
     const filteredProducts = getFilteredProducts();
+
+    updateFavoritesCount();
 
     resultsCount.textContent =
         `${filteredProducts.length} ${
@@ -128,10 +195,18 @@ function displayProducts() {
         }`;
 
     if (filteredProducts.length === 0) {
+        const emptyMessage = showFavoritesOnly
+            ? "Todavía no tienes favoritos."
+            : "No encontramos resultados.";
+
+        const emptyDescription = showFavoritesOnly
+            ? "Marca el corazón de un producto para guardarlo aquí."
+            : "Intenta con otro nombre, marca o categoría.";
+
         productGrid.innerHTML = `
             <div class="empty-state">
-                <h3>No encontramos resultados.</h3>
-                <p>Intenta con otro nombre, marca o categoría.</p>
+                <h3>${emptyMessage}</h3>
+                <p>${emptyDescription}</p>
             </div>
         `;
 
@@ -139,15 +214,31 @@ function displayProducts() {
     }
 
     productGrid.innerHTML = filteredProducts.map(function(product) {
+
+        const isFavorite = favoriteProducts.includes(product.id);
+
         return `
             <article class="product-card">
 
                 <div class="product-image">
+
                     <img
                         src="${product.image}"
                         alt="${product.name}"
                         loading="lazy"
                     >
+
+                    <button
+                        class="favorite-btn ${isFavorite ? "is-favorite" : ""}"
+                        type="button"
+                        data-favorite-id="${product.id}"
+                        aria-label="${isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}: ${product.name}"
+                        aria-pressed="${isFavorite}"
+                        title="${isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}"
+                    >
+                        ♥
+                    </button>
+
                 </div>
 
                 <div class="product-info">
@@ -178,12 +269,45 @@ function displayProducts() {
 }
 
 
-/* 7. SEARCH EVENT */
+/* 10. TOGGLE PRODUCT FAVORITES */
+
+function toggleFavorite(productId) {
+    const isFavorite = favoriteProducts.includes(productId);
+
+    if (isFavorite) {
+        favoriteProducts = favoriteProducts.filter(function(id) {
+            return id !== productId;
+        });
+    } else {
+        favoriteProducts.push(productId);
+    }
+
+    saveFavorites();
+    displayProducts();
+}
+
+
+/* 11. FAVORITE BUTTON EVENTS */
+
+productGrid.addEventListener("click", function(event) {
+    const favoriteButton = event.target.closest("[data-favorite-id]");
+
+    if (!favoriteButton) {
+        return;
+    }
+
+    const productId = Number(favoriteButton.dataset.favoriteId);
+
+    toggleFavorite(productId);
+});
+
+
+/* 12. SEARCH EVENT */
 
 searchInput.addEventListener("input", displayProducts);
 
 
-/* 8. CATEGORY FILTER EVENTS */
+/* 13. CATEGORY FILTER EVENTS */
 
 filterButtons.forEach(function(button) {
 
@@ -203,12 +327,20 @@ filterButtons.forEach(function(button) {
 });
 
 
-/* 9. SORT EVENT */
+/* 14. FAVORITES FILTER EVENT */
+
+favoritesToggle.addEventListener("click", function() {
+    showFavoritesOnly = !showFavoritesOnly;
+    displayProducts();
+});
+
+
+/* 15. SORT EVENT */
 
 sortSelect.addEventListener("change", displayProducts);
 
 
-/* 10. INITIALIZE APPLICATION */
+/* 16. INITIALIZE APPLICATION */
 
 displayProducts();
 
