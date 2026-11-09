@@ -1,7 +1,8 @@
-
 /* =========================================
    PRISMA — MAIN JAVASCRIPT
+   Favorites + Price Comparison
    ========================================= */
+
 
 /* 1. PRODUCT DATABASE */
 
@@ -12,9 +13,12 @@ const products = [
         category: "Smartphones",
         brand: "Apple",
         description: "Smartphone con pantalla Super Retina.",
-        price: 17499,
-        store: "Apple Store",
-        image: "https://placehold.co/400x300/f3f1ec/202020?text=iPhone+16"
+        image: "https://placehold.co/400x300/f3f1ec/202020?text=iPhone+16",
+        offers: [
+            { store: "Apple Store", price: 17499 },
+            { store: "Amazon", price: 16499 },
+            { store: "Liverpool", price: 16999 }
+        ]
     },
     {
         id: 2,
@@ -22,9 +26,12 @@ const products = [
         category: "Laptops",
         brand: "Apple",
         description: "Laptop ligera y potente para trabajar.",
-        price: 22999,
-        store: "MacStore",
-        image: "https://placehold.co/400x300/f3f1ec/202020?text=MacBook+Air"
+        image: "https://placehold.co/400x300/f3f1ec/202020?text=MacBook+Air",
+        offers: [
+            { store: "MacStore", price: 22999 },
+            { store: "Amazon", price: 22499 },
+            { store: "Liverpool", price: 23999 }
+        ]
     },
     {
         id: 3,
@@ -32,9 +39,12 @@ const products = [
         category: "Audio",
         brand: "Sony",
         description: "Audífonos inalámbricos con cancelación de ruido.",
-        price: 5499,
-        store: "Sony Store",
-        image: "https://placehold.co/400x300/f3f1ec/202020?text=Sony+Headphones"
+        image: "https://placehold.co/400x300/f3f1ec/202020?text=Sony+Headphones",
+        offers: [
+            { store: "Sony Store", price: 5499 },
+            { store: "Amazon", price: 4999 },
+            { store: "Liverpool", price: 5299 }
+        ]
     },
     {
         id: 4,
@@ -42,9 +52,12 @@ const products = [
         category: "Gaming",
         brand: "Sony",
         description: "Consola de videojuegos de nueva generación.",
-        price: 9499,
-        store: "PlayStation Store",
-        image: "https://placehold.co/400x300/f3f1ec/202020?text=PlayStation+5"
+        image: "https://placehold.co/400x300/f3f1ec/202020?text=PlayStation+5",
+        offers: [
+            { store: "PlayStation Store", price: 9499 },
+            { store: "Amazon", price: 8999 },
+            { store: "Liverpool", price: 9299 }
+        ]
     }
 ];
 
@@ -118,7 +131,36 @@ function formatPrice(price) {
 }
 
 
-/* 7. UPDATE FAVORITES COUNTER */
+/* 7. PRICE COMPARISON FUNCTIONS */
+
+// Returns the cheapest offer for a product.
+function getBestOffer(product) {
+    return product.offers.reduce(function(bestOffer, currentOffer) {
+        return currentOffer.price < bestOffer.price
+            ? currentOffer
+            : bestOffer;
+    });
+}
+
+// Returns the highest offer for a product.
+function getHighestOffer(product) {
+    return product.offers.reduce(function(highestOffer, currentOffer) {
+        return currentOffer.price > highestOffer.price
+            ? currentOffer
+            : highestOffer;
+    });
+}
+
+// Calculates the difference between the highest and lowest price.
+function getPriceDifference(product) {
+    const bestOffer = getBestOffer(product);
+    const highestOffer = getHighestOffer(product);
+
+    return highestOffer.price - bestOffer.price;
+}
+
+
+/* 8. UPDATE FAVORITES COUNTER */
 
 function updateFavoritesCount() {
     favoritesCount.textContent = favoriteProducts.length;
@@ -135,13 +177,12 @@ function updateFavoritesCount() {
 }
 
 
-/* 8. FILTER, SEARCH AND SORT PRODUCTS */
+/* 9. FILTER, SEARCH AND SORT PRODUCTS */
 
 function getFilteredProducts() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
     let filteredProducts = products.filter(function(product) {
-
         const matchesSearch =
             product.name.toLowerCase().includes(searchTerm) ||
             product.category.toLowerCase().includes(searchTerm) ||
@@ -162,13 +203,13 @@ function getFilteredProducts() {
 
     if (sortValue === "price-asc") {
         filteredProducts.sort(function(a, b) {
-            return a.price - b.price;
+            return getBestOffer(a).price - getBestOffer(b).price;
         });
     }
 
     if (sortValue === "price-desc") {
         filteredProducts.sort(function(a, b) {
-            return b.price - a.price;
+            return getBestOffer(b).price - getBestOffer(a).price;
         });
     }
 
@@ -182,7 +223,7 @@ function getFilteredProducts() {
 }
 
 
-/* 9. DISPLAY PRODUCTS */
+/* 10. DISPLAY PRODUCTS */
 
 function displayProducts() {
     const filteredProducts = getFilteredProducts();
@@ -214,14 +255,14 @@ function displayProducts() {
     }
 
     productGrid.innerHTML = filteredProducts.map(function(product) {
-
         const isFavorite = favoriteProducts.includes(product.id);
+        const bestOffer = getBestOffer(product);
+        const priceDifference = getPriceDifference(product);
 
         return `
             <article class="product-card">
 
                 <div class="product-image">
-
                     <img
                         src="${product.image}"
                         alt="${product.name}"
@@ -238,7 +279,6 @@ function displayProducts() {
                     >
                         ♥
                     </button>
-
                 </div>
 
                 <div class="product-info">
@@ -253,13 +293,36 @@ function displayProducts() {
                         ${product.description}
                     </p>
 
+                    <span class="best-price-label">
+                        MEJOR PRECIO
+                    </span>
+
                     <p class="product-price">
-                        ${formatPrice(product.price)}
+                        ${formatPrice(bestOffer.price)}
                     </p>
 
                     <p class="product-store">
-                        Disponible en ${product.store}
+                        En ${bestOffer.store}
                     </p>
+
+                    <div class="comparison-summary">
+                        <span>
+                            ${product.offers.length} tiendas comparadas
+                        </span>
+
+                        <span>
+                            Ahorra hasta ${formatPrice(priceDifference)}
+                        </span>
+                    </div>
+
+                    <button
+                        class="compare-btn"
+                        type="button"
+                        data-compare-id="${product.id}"
+                    >
+                        Comparar precios
+                        <span>↗</span>
+                    </button>
 
                 </div>
 
@@ -269,7 +332,7 @@ function displayProducts() {
 }
 
 
-/* 10. TOGGLE PRODUCT FAVORITES */
+/* 11. TOGGLE PRODUCT FAVORITES */
 
 function toggleFavorite(productId) {
     const isFavorite = favoriteProducts.includes(productId);
@@ -287,7 +350,7 @@ function toggleFavorite(productId) {
 }
 
 
-/* 11. FAVORITE BUTTON EVENTS */
+/* 12. FAVORITE BUTTON EVENTS */
 
 productGrid.addEventListener("click", function(event) {
     const favoriteButton = event.target.closest("[data-favorite-id]");
@@ -302,17 +365,200 @@ productGrid.addEventListener("click", function(event) {
 });
 
 
-/* 12. SEARCH EVENT */
+/* 13. PRICE COMPARISON MODAL */
+
+// Create the comparison window dynamically.
+const comparisonModal = document.createElement("div");
+
+comparisonModal.className = "comparison-modal";
+comparisonModal.id = "comparison-modal";
+
+comparisonModal.setAttribute("aria-hidden", "true");
+
+comparisonModal.innerHTML = `
+    <div
+        class="comparison-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="comparison-title"
+    >
+        <button
+            class="comparison-close"
+            type="button"
+            aria-label="Cerrar comparación"
+        >
+            ×
+        </button>
+
+        <div id="comparison-content"></div>
+    </div>
+`;
+
+document.body.appendChild(comparisonModal);
+
+const comparisonContent = document.getElementById("comparison-content");
+const comparisonClose = comparisonModal.querySelector(".comparison-close");
+
+
+// Open the comparison window.
+function openComparison(productId) {
+    const product = products.find(function(item) {
+        return item.id === productId;
+    });
+
+    if (!product) {
+        return;
+    }
+
+    const bestOffer = getBestOffer(product);
+    const highestOffer = getHighestOffer(product);
+    const priceDifference = getPriceDifference(product);
+
+    // Sort offers from lowest to highest price.
+    const sortedOffers = [...product.offers].sort(function(a, b) {
+        return a.price - b.price;
+    });
+
+    comparisonContent.innerHTML = `
+        <span class="comparison-eyebrow">
+            PRISMA PRICE COMPARISON
+        </span>
+
+        <h2 id="comparison-title">
+            ${product.name}<span>.</span>
+        </h2>
+
+        <p class="comparison-description">
+            Compara las ofertas disponibles y encuentra el mejor precio.
+        </p>
+
+        <div class="comparison-best">
+            <span>MEJOR PRECIO ENCONTRADO</span>
+
+            <strong>${formatPrice(bestOffer.price)}</strong>
+
+            <p>Disponible en ${bestOffer.store}</p>
+        </div>
+
+        <div class="comparison-offers">
+
+            <div class="comparison-offers-heading">
+                <h3>Precios por tienda</h3>
+                <span>${sortedOffers.length} ofertas</span>
+            </div>
+
+            ${sortedOffers.map(function(offer, index) {
+                const isBestPrice = index === 0;
+
+                return `
+                    <div class="comparison-offer ${isBestPrice ? "best-offer" : ""}">
+
+                        <div class="offer-store">
+                            <span class="offer-store-number">
+                                0${index + 1}
+                            </span>
+
+                            <div>
+                                <strong>${offer.store}</strong>
+
+                                ${
+                                    isBestPrice
+                                        ? '<span class="best-offer-tag">MEJOR PRECIO</span>'
+                                        : ""
+                                }
+                            </div>
+                        </div>
+
+                        <strong class="offer-price">
+                            ${formatPrice(offer.price)}
+                        </strong>
+
+                    </div>
+                `;
+            }).join("")}
+
+        </div>
+
+        <div class="comparison-savings">
+            <div>
+                <span>Mayor precio</span>
+                <strong>${formatPrice(highestOffer.price)}</strong>
+            </div>
+
+            <div>
+                <span>Podrías ahorrar</span>
+                <strong>${formatPrice(priceDifference)}</strong>
+            </div>
+        </div>
+
+        <p class="comparison-disclaimer">
+            Precios de demostración para el proyecto PRISMA.
+            Pueden no coincidir con los precios reales de las tiendas.
+        </p>
+    `;
+
+    comparisonModal.classList.add("is-visible");
+    comparisonModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+
+    comparisonClose.focus();
+}
+
+
+// Close the comparison window.
+function closeComparison() {
+    comparisonModal.classList.remove("is-visible");
+    comparisonModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+}
+
+
+// Listen for clicks on comparison buttons.
+productGrid.addEventListener("click", function(event) {
+    const compareButton = event.target.closest("[data-compare-id]");
+
+    if (!compareButton) {
+        return;
+    }
+
+    const productId = Number(compareButton.dataset.compareId);
+
+    openComparison(productId);
+});
+
+
+// Close using the close button.
+comparisonClose.addEventListener("click", closeComparison);
+
+
+// Close when clicking outside the modal content.
+comparisonModal.addEventListener("click", function(event) {
+    if (event.target === comparisonModal) {
+        closeComparison();
+    }
+});
+
+
+// Close with the Escape key.
+document.addEventListener("keydown", function(event) {
+    if (
+        event.key === "Escape" &&
+        comparisonModal.classList.contains("is-visible")
+    ) {
+        closeComparison();
+    }
+});
+
+
+/* 14. SEARCH EVENT */
 
 searchInput.addEventListener("input", displayProducts);
 
 
-/* 13. CATEGORY FILTER EVENTS */
+/* 15. CATEGORY FILTER EVENTS */
 
 filterButtons.forEach(function(button) {
-
     button.addEventListener("click", function() {
-
         selectedCategory = button.dataset.category;
 
         filterButtons.forEach(function(filterButton) {
@@ -323,24 +569,24 @@ filterButtons.forEach(function(button) {
 
         displayProducts();
     });
-
 });
 
 
-/* 14. FAVORITES FILTER EVENT */
+/* 16. FAVORITES FILTER EVENT */
 
 favoritesToggle.addEventListener("click", function() {
     showFavoritesOnly = !showFavoritesOnly;
+
     displayProducts();
 });
 
 
-/* 15. SORT EVENT */
+/* 17. SORT EVENT */
 
 sortSelect.addEventListener("change", displayProducts);
 
 
-/* 16. INITIALIZE APPLICATION */
+/* 18. INITIALIZE APPLICATION */
 
 displayProducts();
 
