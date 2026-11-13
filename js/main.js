@@ -2,12 +2,13 @@
 /* =========================================
    PRISMA — MAIN JAVASCRIPT
    Favorites + Price Comparison + Product Details
+   + External API Integration
    ========================================= */
 
 
 /* 1. PRODUCT DATABASE */
 
-const products = [
+let products = [
     {
         id: 1,
         name: "iPhone 16",
@@ -129,9 +130,7 @@ function loadFavorites() {
         }
 
         return savedFavorites.filter(function(id) {
-            return products.some(function(product) {
-                return product.id === id;
-            });
+            return Number.isInteger(id);
         });
 
     } catch (error) {
@@ -159,11 +158,11 @@ function saveFavorites() {
 
 /* 6. FORMAT PRICES */
 
-function formatPrice(price) {
+function formatPrice(price, currency = "MXN") {
     return new Intl.NumberFormat("es-MX", {
         style: "currency",
-        currency: "MXN",
-        maximumFractionDigits: 0
+        currency: currency,
+        maximumFractionDigits: currency === "USD" ? 2 : 0
     }).format(price);
 }
 
@@ -171,18 +170,25 @@ function formatPrice(price) {
 /* 7. PRICE COMPARISON FUNCTIONS */
 
 function getBestOffer(product) {
+    if (!product.offers || product.offers.length === 0) {
+        return {
+            store: product.source || "Precio de referencia",
+            price: product.price
+        };
+    }
+
     return product.offers.reduce(function(bestOffer, currentOffer) {
-        return currentOffer.price < bestOffer.price
-            ? currentOffer
-            : bestOffer;
+        return currentOffer.price < bestOffer.price ? currentOffer : bestOffer;
     });
 }
 
 function getHighestOffer(product) {
+    if (!product.offers || product.offers.length === 0) {
+        return getBestOffer(product);
+    }
+
     return product.offers.reduce(function(highestOffer, currentOffer) {
-        return currentOffer.price > highestOffer.price
-            ? currentOffer
-            : highestOffer;
+        return currentOffer.price > highestOffer.price ? currentOffer : highestOffer;
     });
 }
 
@@ -289,6 +295,8 @@ function displayProducts() {
         const isFavorite = favoriteProducts.includes(product.id);
         const bestOffer = getBestOffer(product);
         const priceDifference = getPriceDifference(product);
+        const currency = product.currency || "MXN";
+        const hasOffers = product.offers && product.offers.length > 0;
 
         return `
             <article class="product-card">
@@ -325,20 +333,22 @@ function displayProducts() {
                     </p>
 
                     <span class="best-price-label">
-                        MEJOR PRECIO
+                        ${hasOffers ? "MEJOR PRECIO" : "PRECIO DE REFERENCIA · USD"}
                     </span>
 
                     <p class="product-price">
-                        ${formatPrice(bestOffer.price)}
+                        ${formatPrice(bestOffer.price, currency)}
                     </p>
 
                     <p class="product-store">
-                        En ${bestOffer.store}
+                        ${hasOffers ? `En ${bestOffer.store}` : "Precio de demostración · DummyJSON"}
                     </p>
 
                     <div class="comparison-summary">
-                        <span>${product.offers.length} tiendas comparadas</span>
-                        <span>Ahorra hasta ${formatPrice(priceDifference)}</span>
+                        ${hasOffers
+                            ? `<span>${product.offers.length} tiendas comparadas</span><span>Ahorra hasta ${formatPrice(priceDifference, currency)}</span>`
+                            : `<span>Datos externos de demostración</span><span>No hay ofertas comparables</span>`
+                        }
                     </div>
 
                     <button
@@ -350,14 +360,11 @@ function displayProducts() {
                         <span>↗</span>
                     </button>
 
-                    <button
-                        class="compare-btn"
-                        type="button"
-                        data-compare-id="${product.id}"
-                    >
-                        Comparar precios
-                        <span>↗</span>
-                    </button>
+                    ${hasOffers ? `
+                        <button class="compare-btn" type="button" data-compare-id="${product.id}">
+                            Comparar precios <span>↗</span>
+                        </button>
+                    ` : ""}
 
                 </div>
 
@@ -432,6 +439,26 @@ function openComparison(productId) {
     const bestOffer = getBestOffer(product);
     const highestOffer = getHighestOffer(product);
     const priceDifference = getPriceDifference(product);
+    const currency = product.currency || "MXN";
+
+    if (!product.offers || product.offers.length === 0) {
+        comparisonContent.innerHTML = `
+            <span class="comparison-eyebrow">PRISMA · DATOS DE API</span>
+            <h2 id="comparison-title">${product.name}<span>.</span></h2>
+            <p class="comparison-description">La API proporciona un precio de referencia, pero no ofrece precios de distintas tiendas para comparar.</p>
+            <div class="comparison-best">
+                <span>PRECIO DE REFERENCIA · USD</span>
+                <strong>${formatPrice(product.price, currency)}</strong>
+                <p>Fuente: DummyJSON. Dato de demostración, no una oferta comercial.</p>
+            </div>
+        `;
+
+        comparisonModal.classList.add("is-visible");
+        comparisonModal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+        comparisonClose.focus();
+        return;
+    }
 
     const sortedOffers = [...product.offers].sort(function(a, b) {
         return a.price - b.price;
@@ -452,7 +479,7 @@ function openComparison(productId) {
 
         <div class="comparison-best">
             <span>MEJOR PRECIO ENCONTRADO</span>
-            <strong>${formatPrice(bestOffer.price)}</strong>
+            <strong>${formatPrice(bestOffer.price, currency)}</strong>
             <p>Disponible en ${bestOffer.store}</p>
         </div>
 
@@ -479,7 +506,7 @@ function openComparison(productId) {
                         </div>
 
                         <strong class="offer-price">
-                            ${formatPrice(offer.price)}
+                            ${formatPrice(offer.price, currency)}
                         </strong>
                     </div>
                 `;
@@ -489,12 +516,12 @@ function openComparison(productId) {
         <div class="comparison-savings">
             <div>
                 <span>Mayor precio</span>
-                <strong>${formatPrice(highestOffer.price)}</strong>
+                <strong>${formatPrice(highestOffer.price, currency)}</strong>
             </div>
 
             <div>
                 <span>Podrías ahorrar</span>
-                <strong>${formatPrice(priceDifference)}</strong>
+                <strong>${formatPrice(priceDifference, currency)}</strong>
             </div>
         </div>
 
@@ -568,7 +595,13 @@ const detailsClose = detailsModal.querySelector(".details-close");
 /* 16. GENERATE PRICE HISTORY */
 
 function generatePriceHistory(product) {
-    const history = product.priceHistory;
+    const history = product.priceHistory || [];
+
+    if (history.length === 0) {
+        return `<p class="history-disclaimer">La API no proporciona un historial de precios. No hay registros históricos disponibles para este producto.</p>`;
+    }
+
+    const currency = product.currency || "MXN";
     const maximum = Math.max(...history);
     const minimum = Math.min(...history);
     const range = maximum - minimum || 1;
@@ -587,13 +620,13 @@ function generatePriceHistory(product) {
 
         return `
             <div class="history-column">
-                <span class="history-price">${formatPrice(price)}</span>
+                <span class="history-price">${formatPrice(price, currency)}</span>
 
                 <div class="history-bar-container">
                     <div
                         class="history-bar ${index === history.length - 1 ? "current-bar" : ""}"
                         style="height: ${height}%"
-                        title="${formatPrice(price)}"
+                        title="${formatPrice(price, currency)}"
                     ></div>
                 </div>
 
@@ -618,6 +651,8 @@ function openProductDetails(productId) {
     const bestOffer = getBestOffer(product);
     const highestOffer = getHighestOffer(product);
     const priceDifference = getPriceDifference(product);
+    const currency = product.currency || "MXN";
+    const hasOffers = product.offers && product.offers.length > 0;
 
     const specificationsHTML = product.specifications.map(function(specification) {
         return `
@@ -644,7 +679,7 @@ function openProductDetails(productId) {
                 </div>
 
                 <strong class="detail-offer-price">
-                    ${formatPrice(offer.price)}
+                    ${formatPrice(offer.price, currency)}
                 </strong>
             </div>
         `;
@@ -670,18 +705,16 @@ function openProductDetails(productId) {
                 </p>
 
                 <div class="details-best-price">
-                    <span>MEJOR PRECIO DISPONIBLE</span>
-                    <strong>${formatPrice(bestOffer.price)}</strong>
-                    <p>En ${bestOffer.store}</p>
+                    <span>${hasOffers ? "MEJOR PRECIO DISPONIBLE" : "PRECIO DE REFERENCIA · USD"}</span>
+                    <strong>${formatPrice(bestOffer.price, currency)}</strong>
+                    <p>${hasOffers ? `En ${bestOffer.store}` : "Fuente: DummyJSON · dato de demostración"}</p>
                 </div>
 
-                <button
-                    class="details-compare-action"
-                    type="button"
-                    data-details-compare="${product.id}"
-                >
-                    Comparar todas las ofertas ↗
-                </button>
+                ${hasOffers ? `
+                    <button class="details-compare-action" type="button" data-details-compare="${product.id}">
+                        Comparar todas las ofertas ↗
+                    </button>
+                ` : ""}
             </div>
         </div>
 
@@ -696,51 +729,33 @@ function openProductDetails(productId) {
             </div>
         </section>
 
-        <section class="details-section">
-            <div class="details-section-heading">
-                <span>02 — COMPARACIÓN</span>
-                <h3>Encuentra el mejor precio<span>.</span></h3>
-            </div>
-
-            <div class="details-offers">
-                ${offersHTML}
-            </div>
-
-            <div class="details-savings">
-                <span>Diferencia entre la oferta más alta y la más baja</span>
-                <strong>${formatPrice(priceDifference)}</strong>
-            </div>
-        </section>
+        ${hasOffers ? `
+            <section class="details-section">
+                <div class="details-section-heading">
+                    <span>02 — COMPARACIÓN</span>
+                    <h3>Encuentra el mejor precio<span>.</span></h3>
+                </div>
+                <div class="details-offers">${offersHTML}</div>
+                <div class="details-savings">
+                    <span>Diferencia entre la oferta más alta y la más baja</span>
+                    <strong>${formatPrice(priceDifference, currency)}</strong>
+                </div>
+            </section>
+        ` : ""}
 
         <section class="details-section">
             <div class="details-section-heading">
                 <span>03 — EVOLUCIÓN</span>
                 <h3>Historial de precios<span>.</span></h3>
-                <p>
-                    Evolución ilustrativa del precio durante los últimos seis meses.
-                </p>
             </div>
-
-            <div class="price-history-chart">
-                ${generatePriceHistory(product)}
-            </div>
-
-            <div class="history-summary">
-                <div>
-                    <span>Precio más alto</span>
-                    <strong>${formatPrice(highestOffer.price)}</strong>
+            <div class="price-history-chart">${generatePriceHistory(product)}</div>
+            ${product.priceHistory && product.priceHistory.length ? `
+                <div class="history-summary">
+                    <div><span>Precio más alto</span><strong>${formatPrice(highestOffer.price, currency)}</strong></div>
+                    <div><span>Precio más bajo</span><strong>${formatPrice(bestOffer.price, currency)}</strong></div>
                 </div>
-
-                <div>
-                    <span>Precio más bajo</span>
-                    <strong>${formatPrice(bestOffer.price)}</strong>
-                </div>
-            </div>
-
-            <p class="history-disclaimer">
-                El historial utiliza datos de demostración y no representa
-                registros reales de las tiendas.
-            </p>
+                <p class="history-disclaimer">Historial ilustrativo de productos locales de PRISMA; no son registros reales de tiendas.</p>
+            ` : ""}
         </section>
     `;
 
@@ -869,8 +884,128 @@ favoritesToggle.addEventListener("click", function() {
 sortSelect.addEventListener("change", displayProducts);
 
 
-/* 26. INITIALIZE APPLICATION */
+/* 26. TRANSFORM API PRODUCTS INTO PRISMA FORMAT */
+
+function mapApiProduct(apiProduct, categoryName) {
+    const specifications = [
+        { label: "SKU", value: apiProduct.sku },
+        {
+            label: "Peso",
+            value: apiProduct.weight !== undefined
+                ? `${apiProduct.weight} kg`
+                : ""
+        },
+        { label: "Disponibilidad", value: apiProduct.availabilityStatus },
+        { label: "Garantía", value: apiProduct.warrantyInformation },
+        { label: "Devoluciones", value: apiProduct.returnPolicy }
+    ];
+
+    if (apiProduct.dimensions) {
+        specifications.push({
+            label: "Dimensiones",
+            value: `${apiProduct.dimensions.width} × ${apiProduct.dimensions.height} × ${apiProduct.dimensions.depth}`
+        });
+    }
+
+    return {
+        id: 10000 + apiProduct.id,
+        apiId: apiProduct.id,
+        name: apiProduct.title,
+        category: categoryName,
+        brand: apiProduct.brand || "Sin marca",
+        description: apiProduct.description,
+        image: apiProduct.thumbnail || apiProduct.images?.[0] || "",
+        price: apiProduct.price,
+        currency: "USD",
+        rating: apiProduct.rating,
+        stock: apiProduct.stock,
+        sku: apiProduct.sku,
+        source: "DummyJSON",
+        offers: [],
+        specifications: specifications.filter(function(item) {
+            return item.value !== undefined &&
+                item.value !== null &&
+                item.value !== "";
+        }),
+        priceHistory: []
+    };
+}
+
+
+/* 27. LOAD PRODUCTS FROM DUMMYJSON API */
+
+async function loadApiProducts() {
+    productGrid.innerHTML = `
+        <div class="empty-state">
+            <h3>Cargando productos tecnológicos...</h3>
+            <p>Estamos consultando el catálogo externo.</p>
+        </div>
+    `;
+
+    try {
+        const categories = [
+            { api: "smartphones", label: "Smartphones" },
+            { api: "laptops", label: "Laptops" }
+        ];
+
+        const requests = categories.map(async function(category) {
+            const response = await fetch(
+                `https://dummyjson.com/products/category/${category.api}?limit=12`
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `No se pudo cargar la categoría ${category.label}`
+                );
+            }
+
+            const data = await response.json();
+
+            return data.products.map(function(product) {
+                return mapApiProduct(product, category.label);
+            });
+        });
+
+        const results = await Promise.all(requests);
+        const apiProducts = results.flat();
+
+        // Conservamos los cuatro productos originales y agregamos los de la API.
+        products = products.concat(apiProducts);
+
+        displayProducts();
+
+        console.log(
+            `PRISMA: ${apiProducts.length} productos recibidos desde DummyJSON.`
+        );
+
+        console.table(apiProducts.map(function(product) {
+            return {
+                nombre: product.name,
+                marca: product.brand,
+                categoria: product.category,
+                precioUSD: product.price
+            };
+        }));
+
+    } catch (error) {
+        console.error(
+            "Error al cargar productos desde la API:",
+            error
+        );
+
+        displayProducts();
+
+        productGrid.insertAdjacentHTML("afterbegin", `
+            <p class="history-disclaimer">
+                No fue posible actualizar el catálogo externo.
+                Se muestran los productos locales.
+            </p>
+        `);
+    }
+}
+
+
+/* 28. INITIALIZE APPLICATION */
 
 displayProducts();
-
-console.log("PRISMA: aplicación iniciada correctamente.");
+loadApiProducts();
